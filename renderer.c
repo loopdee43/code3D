@@ -147,9 +147,8 @@ int main()
 		if (keydown(KEY_MENU)){
 		    gint_osmenu();
 		}
-	
+		dclear();
 		for(int j; j < 11; j++){
-		    dclear();
 		    triangle triProjected, triTranslated, triRotatedZ, triRotatedZX;
 		    
 		    MultiplyMatrixVector(meshCube.tris[j].p[0], &triRotatedZ.p[0], matRotZ);
