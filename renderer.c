@@ -2,6 +2,9 @@
 #include <math.h>
 #include <time.h>
 #include <unistd.h>
+#include <gint/gint.h>
+#include <gint/display.h>
+#include <gint/display-cg.h>
 typedef struct vec3d
 {
 	float x, y, z;
@@ -34,7 +37,7 @@ void dpixel2(int x, int y, int color){
     int index = 396 * y + x;
     gint_vram[index] = color
 }
-void MultiplyMatrixVector(vec3d i, vec3d o, mat4x4 m)
+void MultiplyMatrixVector(vec3d i, vec3d *o, mat4x4 m)
 {
     o.x = i.x * m.m[0][0] + i.y * m.m[1][0] + i.z * m.m[2][0] + m.m[3][0];
 	o.y = i.x * m.m[0][1] + i.y * m.m[1][1] + i.z * m.m[2][1] + m.m[3][1];
@@ -140,18 +143,23 @@ int main()
 		matRotX.m[2][2] = cosf(fTheta * 0.5f);
 		matRotX.m[3][3] = 1;
 		
+		clearevents();
+		if (keydown(KEY_MENU)){
+		    gint_osmenu();
+		}
 	
 		for(int j; j < 11; j++){
+		    dclear();
 		    triangle triProjected, triTranslated, triRotatedZ, triRotatedZX;
 		    
-		    MultiplyMatrixVector(meshCube.tris[j].p[0], triRotatedZ.p[0], matRotZ);
-			MultiplyMatrixVector(meshCube.tris[j].p[1], triRotatedZ.p[1], matRotZ);
-			MultiplyMatrixVector(meshCube.tris[j].p[2], triRotatedZ.p[2], matRotZ);
+		    MultiplyMatrixVector(meshCube.tris[j].p[0], &triRotatedZ.p[0], matRotZ);
+			MultiplyMatrixVector(meshCube.tris[j].p[1], &triRotatedZ.p[1], matRotZ);
+			MultiplyMatrixVector(meshCube.tris[j].p[2], &triRotatedZ.p[2], matRotZ);
 
 			// Rotate in X-Axis
-			MultiplyMatrixVector(triRotatedZ.p[0], triRotatedZX.p[0], matRotX);
-			MultiplyMatrixVector(triRotatedZ.p[1], triRotatedZX.p[1], matRotX);
-			MultiplyMatrixVector(triRotatedZ.p[2], triRotatedZX.p[2], matRotX);
+			MultiplyMatrixVector(triRotatedZ.p[0], &triRotatedZX.p[0], matRotX);
+			MultiplyMatrixVector(triRotatedZ.p[1], &triRotatedZX.p[1], matRotX);
+			MultiplyMatrixVector(triRotatedZ.p[2], &triRotatedZX.p[2], matRotX);
 
 			// Offset into the screen
 			triTranslated = triRotatedZX;
@@ -160,9 +168,9 @@ int main()
 			triTranslated.p[2].z = triRotatedZX.p[2].z + 3.0f;
 
 			// Project triangles from 3D --> 2D
-			MultiplyMatrixVector(triTranslated.p[0], triProjected.p[0], matProj);
-			MultiplyMatrixVector(triTranslated.p[1], triProjected.p[1], matProj);
-			MultiplyMatrixVector(triTranslated.p[2], triProjected.p[2], matProj);
+			MultiplyMatrixVector(triTranslated.p[0], &triProjected.p[0], matProj);
+			MultiplyMatrixVector(triTranslated.p[1], &triProjected.p[1], matProj);
+			MultiplyMatrixVector(triTranslated.p[2], &triProjected.p[2], matProj);
 
 			// Scale into view
 			triProjected.p[0].x += 1.0f; triProjected.p[0].y += 1.0f;
@@ -177,6 +185,7 @@ int main()
 
 			// Rasterize triangle
 			DrawTriangle(); // yet to define
+			dupdate();
 		}
 	}
 	
