@@ -143,12 +143,12 @@ int main()
 		matRotX.m[2][2] = cosf(fTheta * 0.5f);
 		matRotX.m[3][3] = 1;
 		
-		clearevents();
+		clearevents(); // prepping keyboard
 		if (keydown(KEY_MENU)){
 		    gint_osmenu();
 		}
-		dclear();
-		for(int j; j < 11; j++){
+		dclear(); // clear screen
+		for(int j; j < 11; j++){ // draw triangles
 		    triangle triProjected, triTranslated, triRotatedZ, triRotatedZX;
 		    
 		    MultiplyMatrixVector(meshCube.tris[j].p[0], &triRotatedZ.p[0], matRotZ);
@@ -183,8 +183,8 @@ int main()
 			triProjected.p[2].y *= 0.5f * (float)ScreenHeight();
 
 			// Rasterize triangle
-			DrawTriangle(); // yet to define
-			dupdate();
+			DrawTriangle();
+			dupdate(); // update screen
 		}
 	}
 	
